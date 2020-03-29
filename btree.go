@@ -15,3 +15,23 @@ type bNode struct {
 	parent *bNode
 	leaf   bool
 }
+
+// Search search key in node
+func (bt *Btree) Search(key int64) {
+	bt.search(bt.root, key)
+}
+
+func (bt *Btree) search(node *bNode, key int64) {
+	var i int64
+	for i <= node.kcount && key > node.keys[i] {
+		i++
+	}
+	if i <= node.kcount && key == node.keys[i] {
+		return
+	} else if node.leaf {
+		return
+	} else {
+		// TODO: diskRead(node.childs[i])
+		// return bt.search()
+	}
+}
