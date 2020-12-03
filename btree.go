@@ -4,34 +4,29 @@ const t = 5
 
 // Btree B-tree struct
 type Btree struct {
-	root *bNode
-}
-
-type bNode struct {
-	kcount int64
-	scount int64
-	keys   [2*t - 1]int64
-	childs [2 * t]*bNode
-	parent *bNode
-	leaf   bool
+	diskService *diskService
+	root        *node
 }
 
 // Search search key in node
-func (bt *Btree) Search(key int64) {
-	bt.search(bt.root, key)
+func (bt *Btree) Search(key uint64) error {
+	return bt.search(bt.root, key)
 }
 
-func (bt *Btree) search(node *bNode, key int64) {
-	var i int64
-	for i <= node.kcount && key > node.keys[i] {
+func (bt *Btree) search(node *node, key uint64) error {
+	var i uint64
+	for i <= node.keysCnt && key > node.keys[i].key {
 		i++
 	}
-	if i <= node.kcount && key == node.keys[i] {
-		return
+	if i <= node.keysCnt && key == node.keys[i].key {
+		return nil
 	} else if node.leaf {
-		return
+		return nil
 	} else {
-		// TODO: diskRead(node.childs[i])
-		// return bt.search()
+		childNode, err := bt.diskService.readNode(node.childrenBlockIDs[i])
+		if err != nil {
+			return err
+		}
+		return bt.search(childNode, key)
 	}
 }
